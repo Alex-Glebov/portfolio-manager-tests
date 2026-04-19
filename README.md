@@ -293,5 +293,5 @@ MIT License
 
 ## See Also
 
-- [Portfolio Manager API](../portfolio-manager/) - The main application
+- [Portfolio Manager API](https://github.com/Alex-Glebov/portfolio-manager) - The main application
 - API Documentation: `http://localhost:8000/docs` (when running)
