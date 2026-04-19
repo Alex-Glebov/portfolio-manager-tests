@@ -173,3 +173,37 @@ def sample_transaction():
 def log_test_start(request):
     """Log test start"""
     print(f"\n>>> Running test: {request.node.name}")
+
+
+# =============================================================================
+# Version Compatibility Fixture
+# =============================================================================
+
+@pytest.fixture(scope="session")
+def require_v0_2_0(api_client):
+    """
+    Skip tests if server version is below 0.2.0.
+    Use this fixture for multi-portfolio tests.
+    """
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
+    from packaging import version
+
+    response = api_client.get("/")
+    if response.status_code != 200:
+        pytest.skip("Cannot determine server version - server unreachable")
+
+    data = response.json()
+    server_version = data.get("version", "0.0.0")
+
+    try:
+        parsed_version = version.parse(server_version)
+        min_version = version.parse("0.2.0")
+    except Exception:
+        pytest.skip(f"Cannot parse server version: {server_version}")
+
+    if parsed_version < min_version:
+        pytest.skip(
+            f"Server version {server_version} < 0.2.0. "
+            f"Multi-portfolio feature not available."
+        )

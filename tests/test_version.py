@@ -56,29 +56,3 @@ class TestVersionCompatibility:
         assert data["status"] == "healthy"
         assert "timestamp" in data
         assert "transactions_count" in data
-
-
-@pytest.fixture(scope="session")
-def require_v0_2_0(api_client):
-    """
-    Skip tests if server version is below 0.2.0.
-    Use this fixture for multi-portfolio tests.
-    """
-    response = api_client.get("/")
-    if response.status_code != 200:
-        pytest.skip("Cannot determine server version - server unreachable")
-
-    data = response.json()
-    server_version = data.get("version", "0.0.0")
-
-    try:
-        parsed_version = version.parse(server_version)
-        min_version = version.parse("0.2.0")
-    except Exception:
-        pytest.skip(f"Cannot parse server version: {server_version}")
-
-    if parsed_version < min_version:
-        pytest.skip(
-            f"Server version {server_version} < 0.2.0. "
-            f"Multi-portfolio feature not available."
-        )
