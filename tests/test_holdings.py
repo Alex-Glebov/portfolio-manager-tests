@@ -25,7 +25,13 @@ class TestHoldings:
 
     def test_get_specific_holding(self, api_client, auth_headers):
         """Should get holding for specific item"""
-        # First create a transaction
+        # Get existing balance first (handles CSV persistence)
+        response = api_client.get("/holdings/TestSteel", headers=auth_headers)
+        initial_balance = 0
+        if response.status_code == 200:
+            initial_balance = response.json().get("current_balance", 0)
+
+        # Create a transaction
         txn = {
             "name": "TestSteel",
             "cost": 50.0,
@@ -37,12 +43,12 @@ class TestHoldings:
         }
         api_client.post("/transactions", headers=auth_headers, json=txn)
 
+        # Verify balance increased by 100
         response = api_client.get("/holdings/TestSteel", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == "TestSteel"
-        # Balance should be at least 100 (may be higher due to CSV persistence)
-        assert data["current_balance"] >= 100
+        assert data["current_balance"] == initial_balance + 100
 
     def test_get_nonexistent_holding(self, api_client, auth_headers):
         """Should return 404 for nonexistent holding"""
