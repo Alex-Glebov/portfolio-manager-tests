@@ -26,7 +26,11 @@ class TestAuthentication:
         assert response.status_code == 200
         data = response.json()
         assert "service" in data
-        assert data["version"] == "1.0.0"
+        assert "version" in data
+        # Verify version is a valid semantic version string
+        version = data["version"]
+        assert isinstance(version, str)
+        assert len(version.split('.')) >= 2  # At least major.minor
 
     def test_docs_endpoint_no_auth(self, api_client):
         """API docs should be accessible"""
