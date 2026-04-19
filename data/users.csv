@@ -1,0 +1,3 @@
+id,username,hashed_password,is_active,created_at
+1,admin,$2b$12$YYrArUSxz0fkNymvNQlowufQDEzYx1fNk9nm.GIsw3jbnKc.bS0su,True,2026-04-19T21:28:44.903598
+2,testuser,$2b$12$RG6L5iKvzA7/7LhvjIaTpuOLyuPwuB0D8vld4BzNSF45dSGq66DPe,True,2026-04-19T21:28:57.331019

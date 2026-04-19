@@ -76,11 +76,13 @@ class TestPortfolioIsolation:
 
     def test_portfolios_isolated(self, api_client, auth_headers, require_v0_2_0):
         """Transactions in different portfolios should not mix"""
-        unique_name = f"IsolationTest_{uuid.uuid4().hex[:8]}"
+        unique_id = uuid.uuid4().hex[:8]
+        default_name = f"DefaultOnly_{unique_id}"
+        portfolio_name = f"PortfolioOnly_{unique_id}"
 
         # Create transaction in default portfolio
         txn_default = {
-            "name": unique_name,
+            "name": default_name,
             "cost": 10.0,
             "qty": 100,
             "cost_units": "USD",
@@ -90,19 +92,18 @@ class TestPortfolioIsolation:
         }
         default_response = api_client.post("/transactions", headers=auth_headers, json=txn_default)
         assert default_response.status_code == 201
-        default_id = default_response.json()["id"]
 
         # Check transaction exists in default portfolio
         response = api_client.get("/transactions", headers=auth_headers)
         assert response.status_code == 200
         default_transactions = response.json()
-        default_ids = [t["id"] for t in default_transactions]
-        assert default_id in default_ids
+        default_names = [t["name"] for t in default_transactions]
+        assert default_name in default_names
 
-        # Create transaction with "testportfolio" header (user's own portfolio)
+        # Create transaction with "testuser" header (user's own portfolio)
         headers_with_portfolio = {**auth_headers, "X-Portfolio": "testuser"}
         txn_portfolio = {
-            "name": unique_name,
+            "name": portfolio_name,
             "cost": 20.0,
             "qty": 50,
             "cost_units": "USD",
@@ -121,19 +122,31 @@ class TestPortfolioIsolation:
             pytest.skip("User portfolio access not configured - skipping isolation test")
 
         assert portfolio_response.status_code == 201
-        portfolio_id = portfolio_response.json()["id"]
 
-        # Verify portfolio transactions don't appear in default
+        # Verify portfolio-only transaction does NOT appear in default
         response = api_client.get("/transactions", headers=auth_headers)
         default_transactions = response.json()
-        default_ids = [t["id"] for t in default_transactions]
+        default_names = [t["name"] for t in default_transactions]
 
-        # The default transaction should be there
-        assert default_id in default_ids
+        # Default-only transaction should still be there
+        assert default_name in default_names
 
-        # The portfolio transaction should NOT be in default list
-        assert portfolio_id not in default_ids, (
-            "Portfolio transaction should not appear in default portfolio"
+        # Portfolio-only transaction should NOT be in default
+        assert portfolio_name not in default_names, (
+            f"Portfolio transaction '{portfolio_name}' should not appear in default portfolio"
+        )
+
+        # Verify default-only transaction does NOT appear in testuser portfolio
+        response = api_client.get("/transactions", headers=headers_with_portfolio)
+        portfolio_transactions = response.json()
+        portfolio_names = [t["name"] for t in portfolio_transactions]
+
+        # Portfolio-only transaction should be there
+        assert portfolio_name in portfolio_names
+
+        # Default-only transaction should NOT be in portfolio
+        assert default_name not in portfolio_names, (
+            f"Default transaction '{default_name}' should not appear in testuser portfolio"
         )
 
     def test_holdings_isolated_by_portfolio(self, api_client, auth_headers, require_v0_2_0):
