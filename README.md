@@ -39,11 +39,39 @@ pip install -r requirements.txt
 
 ### 2. Configure Test Environment
 
-Tests can be configured via environment variables:
+Tests can be configured via **CLI arguments** (recommended) or environment variables:
+
+#### CLI Arguments (New in v0.1.1)
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--host` | API server host | `localhost` |
+| `--port` | API server port | `8000` |
+| `--api-url` | Full API base URL (overrides host/port) | (none) |
+| `--username` | Test user username | `testuser` |
+| `--password` | Test user password | `testpass123` |
+
+**Examples:**
+```bash
+# Test against remote server
+pytest -v --host 192.168.1.100 --port 8080
+
+# Test with full URL
+pytest -v --api-url http://myserver:9000
+
+# Custom credentials
+pytest -v --username admin --password secret123
+```
+
+**Priority:** CLI args > Environment variables > Defaults
+
+#### Environment Variables (Legacy)
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `API_BASE_URL` | API endpoint URL | `http://localhost:8000` |
+| `API_HOST` | API server host (if --host not set) | `localhost` |
+| `API_PORT` | API server port (if --port not set) | `8000` |
 | `TEST_USERNAME` | Test user username | `testuser` |
 | `TEST_PASSWORD` | Test user password | `testpass123` |
 
