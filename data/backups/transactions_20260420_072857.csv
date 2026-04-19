@@ -1,2 +1,0 @@
-id,timestamp,name,cost,qty,cost_units,direction,counterpart_id,notes,total_value
-1,2026-04-19T21:28:57.865015,IsolationTest_f6a3f325,10.0,100.0,USD,in,ISOLATION_TEST,In default portfolio,1000.0
