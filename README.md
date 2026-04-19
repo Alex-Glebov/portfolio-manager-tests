@@ -4,9 +4,9 @@ Test suite for Portfolio Manager API.
 
 ## Version Compatibility
 
-**Current Test Suite Version:** `0.1.0`
+**Current Test Suite Version:** `0.2.0`
 
-**Compatible API Versions:** `0.1.0` - `0.2.0`
+**Compatible API Versions:** `0.1.0` - `0.3.0`
 
 This test suite validates the Portfolio Manager API functionality. Ensure you're running a compatible API version before testing.
 
@@ -15,13 +15,13 @@ This test suite validates the Portfolio Manager API functionality. Ensure you're
 ```
 portfolio-manager-tests/
 ├── tests/
+│   ├── test_version.py         # Version compatibility tests
+│   ├── test_portfolios.py      # Multi-portfolio feature tests
 │   ├── test_transactions.py    # Transaction CRUD tests
 │   ├── test_auth.py            # Authentication tests (JWT, login, register)
 │   ├── test_holdings.py        # Portfolio calculations
 │   ├── test_export.py          # CSV export tests
 │   └── conftest.py             # Pytest fixtures and configuration
-├── test_data/
-│   └── sample_transactions.csv # Test data
 ├── requirements.txt            # Test dependencies
 └── README.md                   # This file
 ```
@@ -110,6 +110,25 @@ pytest -v --cov=.
 ```
 
 ## Test Coverage
+
+### Version Compatibility (`test_version.py`)
+- ✅ Server version is 0.2.0 or higher
+- ✅ Version follows semantic versioning format
+- ✅ Health endpoint returns version info
+- ✅ Version fixture skips incompatible tests
+
+### Multi-Portfolio (`test_portfolios.py`) - Requires v0.2.0+
+- ✅ Multi-portfolio feature available (v0.2.0+)
+- ✅ X-Portfolio header accepted
+- ✅ Default portfolio access (no header)
+- ✅ Empty portfolio header works
+- ✅ Portfolio data isolation
+- ✅ Holdings isolation per portfolio
+- ✅ User can access own portfolio
+- ✅ Admin can access all portfolios
+- ✅ Transaction CRUD in portfolios
+- ✅ Portfolio-specific exports
+- ✅ Portfolio summary isolation
 
 ### Authentication (`test_auth.py`)
 - ✅ Health endpoint (no auth required)
@@ -215,6 +234,22 @@ def test_my_feature(api_client, auth_headers):
 - Tests expect API version in compatible range
 - Check `__min_version__` and `__max_version__` in API
 - Update tests if API version changed significantly
+- **v0.2.0+ required for multi-portfolio tests** - Use `--ignore=tests/test_portfolios.py` to skip
+
+## Version-Specific Testing
+
+### Skip Multi-Portfolio Tests (v0.1.x API)
+```bash
+# Run only tests compatible with v0.1.x
+pytest -v --ignore=tests/test_portfolios.py --ignore=tests/test_version.py
+```
+
+### Run All Tests (v0.2.0+ API)
+```bash
+# Verify version first, then run all tests
+pytest tests/test_version.py -v  # Checks v0.2.0+
+pytest -v  # Run all tests
+```
 
 ## Continuous Integration
 
